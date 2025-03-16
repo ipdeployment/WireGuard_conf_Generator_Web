@@ -1,1 +1,1 @@
-https://ipdeployment.github.io/WG-GN-WEB/
+https://ipdeployment.github.io/WireGuard_conf_Generator_Web/
