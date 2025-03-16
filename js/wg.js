@@ -207,10 +207,8 @@ selectAllBtn.addEventListener('click', () => {
     const allSelected = Array.from(items).every(item => item.classList.contains('selected'));
 
     if (allSelected) {
-        // If all are selected, deselect all
         items.forEach(item => item.classList.remove('selected'));
     } else {
-        // If any are unselected, select all
         items.forEach(item => item.classList.add('selected'));
     }
 });
@@ -535,7 +533,6 @@ const addQRListener = (content) => {
 function updateDnsManagerList() {
     dnsManagerList.innerHTML = '';
 
-    // Add the + button at the start
     const addButton = document.createElement('button');
     addButton.classList.add('add-dns-btn');
     addButton.innerHTML = '<i class="fas fa-plus"></i>';
@@ -546,7 +543,6 @@ function updateDnsManagerList() {
     });
     dnsManagerList.appendChild(addButton);
 
-    // Add existing DNS entries
     tempDNSServers.forEach(dns => {
         const brand = dnsBrands[dns] || dns;
         const dnsItem = document.createElement('div');
@@ -669,13 +665,28 @@ function isValidIP(ip) {
 const fetchIPInfo = async () => {
     try {
         const response = await fetch('https://ipapi.co/json/');
+        if (!response.ok) {
+            throw new Error(`API request failed with status: ${response.status}`);
+        }
         const data = await response.json();
         document.getElementById('user-ip').textContent = data.ip || 'Unknown';
         document.getElementById('user-country').textContent = data.country_name || 'Unknown';
     } catch (error) {
-        console.error('Error fetching IP info:', error);
-        document.getElementById('user-ip').textContent = 'Error';
-        document.getElementById('user-country').textContent = 'Error';
+        console.error('Error fetching IP info:', error.message);
+        // Fallback: Use a simpler API to get at least the IP
+        try {
+            const fallbackResponse = await fetch('https://api.ipify.org?format=json');
+            if (!fallbackResponse.ok) {
+                throw new Error(`Fallback API request failed with status: ${fallbackResponse.status}`);
+            }
+            const fallbackData = await fallbackResponse.json();
+            document.getElementById('user-ip').textContent = fallbackData.ip || 'Unknown';
+            document.getElementById('user-country').textContent = 'Unknown (API Error)';
+        } catch (fallbackError) {
+            console.error('Fallback failed:', fallbackError.message);
+            document.getElementById('user-ip').textContent = 'Error';
+            document.getElementById('user-country').textContent = 'Error';
+        }
     }
 };
 
